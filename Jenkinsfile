@@ -6,15 +6,15 @@ pipeline {
     stage('Install VBT and SFDX-CLI') {
       steps {
       	// Step to Install and Setup VBT and SFDX-CLI
-        sh 'node -v'
-        sh 'npm install -g vlocity sfdx-cli'
-        sh 'npm install -g sfdx-cli'
+		sh 'node -v'
+		sh 'npm install -g vlocity sfdx-cli'
+		sh 'npm install -g sfdx-cli'
       }
     }
     stage('SFDX-Auth') {
       steps {
       	// creating SFDX Alias for auth
-        sh 'echo $SFDX_URL'
+		sh 'echo $SFDX_URL'
 		sh 'echo ${SFDX_URL} > env.sfdx'
 		sh 'sfdx force:auth:sfdxurl:store -d -a ${SFDX_URL} -f env.sfdx'
 		sh 'rm -rf env.sfdx'
@@ -45,9 +45,9 @@ pipeline {
     stage('Vlocity Deploy') {
       steps {
       	// VBT Deploy
-      	sh 'vlocity -sfdx.username ${SFDX_URL} -job Deploy_Delta.yaml packDeploy --verbose true --simpleLogging true'
+		sh 'vlocity -sfdx.username ${SFDX_URL} -job Deploy_Delta.yaml packDeploy --verbose true --simpleLogging true'
         // Apex Post Deplyment Jobs (Optional)
-        sh 'vlocity -sfdx.username ${SFDX_URL} --nojob runApex -apex apex/RunProductBatchJobs.cls --verbose true --simpleLogging true'
+		sh 'vlocity -sfdx.username ${SFDX_URL} --nojob runApex -apex apex/RunProductBatchJobs.cls --verbose true --simpleLogging true'
       }
     }
   }  
