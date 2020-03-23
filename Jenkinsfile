@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 pipeline {
   agent any
-  tools {nodejs "Node 10"}
+  tools {nodejs "PipelineNode"}
   stages {
     stage('Install Tools') {
       steps {
