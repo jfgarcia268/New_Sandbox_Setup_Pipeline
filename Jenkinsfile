@@ -3,7 +3,7 @@ pipeline {
   agent any
   tools {nodejs "PipelineNode"}
   stages {
-    stage('Install Tools') {
+    stage('Install VBT and SFDX-CLI') {
       steps {
       	// Step to Install and Setup VBT and SFDX-CLI
         sh 'node -v'
@@ -35,19 +35,19 @@ pipeline {
       steps {
       	// Vlocity 1st time Setup commands 
       	// Env VBT Update 
-		sh 'vlocity -sfdx.username "$ALIAS" --nojob packUpdateSettings --verbose true --simpleLogging true'
+		sh 'vlocity -sfdx.username ${SFDX_URL} --nojob packUpdateSettings --verbose true --simpleLogging true'
 		// Install OOTB Vlocity DataPacks
-		sh 'vlocity -sfdx.username "$ALIAS" --nojob installVlocityInitial --verbose true --simpleLogging true'
+		sh 'vlocity -sfdx.username ${SFDX_URL} --nojob installVlocityInitial --verbose true --simpleLogging true'
 		// Apex 1st time setup (Optional)
-		sh 'vlocity -sfdx.username "$ALIAS" --nojob runApex -apex apex/cmt_InitializeOrg.cls --verbose true --simpleLogging true'
+		sh 'vlocity -sfdx.username ${SFDX_URL} --nojob runApex -apex apex/cmt_InitializeOrg.cls --verbose true --simpleLogging true'
       }
     }
     stage('Vlocity Deploy') {
       steps {
       	// VBT Deploy
-      	sh 'vlocity -sfdx.username "$ALIAS" -job Deploy_Delta.yaml packDeploy --verbose true --simpleLogging true'
+      	sh 'vlocity -sfdx.username ${SFDX_URL} -job Deploy_Delta.yaml packDeploy --verbose true --simpleLogging true'
         // Apex Post Deplyment Jobs (Optional)
-        sh 'vlocity -sfdx.username "$ALIAS" --nojob runApex -apex apex/RunProductBatchJobs.cls --verbose true --simpleLogging true'
+        sh 'vlocity -sfdx.username ${SFDX_URL} --nojob runApex -apex apex/RunProductBatchJobs.cls --verbose true --simpleLogging true'
       }
     }
   }  
