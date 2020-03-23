@@ -50,4 +50,5 @@ pipeline {
         sh 'vlocity -sfdx.username "$ALIAS" --nojob runApex -apex apex/RunProductBatchJobs.cls --verbose true --simpleLogging true'
       }
     }
+  }  
 }
