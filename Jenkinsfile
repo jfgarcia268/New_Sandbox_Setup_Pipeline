@@ -24,11 +24,11 @@ pipeline {
     stage('SF Deploy') {
       steps {
       	// SF Metadata Deploy
-		sh 'sfdx force:source:deploy --sourcepath salesforce_sfdx --targetusername "${ALIAS}" --verbose'
+		sh 'sfdx force:source:deploy --sourcepath salesforce_sfdx --targetusername ${SFDX_URL} --verbose'
 		// Data Deployment (Optional)
-		sh 'sfdx force:data:tree:import --targetusername "${ALIAS}" --plan sfdx-data/Account-plan.json || true'
+		sh 'sfdx force:data:tree:import --targetusername ${SFDX_URL} --plan sfdx-data/Account-plan.json || true'
 		// Permission set assignment (Optional)
-		sh 'sfdx force:user:permset:assign --targetusername "${ALIAS}" --permsetname HandsetBuy'
+		sh 'sfdx force:user:permset:assign --targetusername ${SFDX_URL} --permsetname HandsetBuy'
       }
     }
     stage('Vlocity 1st Time Setup') {
