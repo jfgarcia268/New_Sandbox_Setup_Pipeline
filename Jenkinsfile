@@ -1,11 +1,12 @@
 #!/usr/bin/env groovy
 pipeline {
-node {
+  agent any
+  tools {nodejs "Node 10"}
   stages {
     stage('Install Tools') {
       steps {
         sh 'node -v'
-        sh 'npm install -g vlocity'
+        sh 'npm install -g vlocity sfdx-cli'
         sh 'npm install -g sfdx-cli'
       }
     }
@@ -20,5 +21,4 @@ node {
       }
     }
   }
-}
 }
