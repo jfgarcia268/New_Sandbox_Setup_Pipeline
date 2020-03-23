@@ -10,14 +10,20 @@ pipeline {
         sh 'npm install -g sfdx-cli'
       }
     }
-    stage('Setup') {
+    stage('SFDX-Auth') {
       steps {
-        sh 'vlocity'
+        sh 'echo $SFDX_URL'
+		sh 'echo ${SFDX_URL} > env.sfdx'
+		sh 'ALIAS=${SFDX_URL}'
+		sh 'sfdx force:auth:sfdxurl:store -d -a ${ALIAS} -f env.sfdx'
+		sh 'rm -rf env.sfdx'
+		sh 'sfdx force:org:display -u $ALIAS'
       }
     }
     stage('Deploy') {
       steps {
-        sh 'sfdx force'
+        sh 'sfdx force:org:display -u $ALIAS'
+        sh 'echo $ALIAS'
       }
     }
   }
