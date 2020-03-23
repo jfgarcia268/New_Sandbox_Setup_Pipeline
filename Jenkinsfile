@@ -5,6 +5,7 @@ pipeline {
   stages {
     stage('Install Tools') {
       steps {
+      	// Step to Install and Setup VBT and SFDX-CLI
         sh 'node -v'
         sh 'npm install -g vlocity sfdx-cli'
         sh 'npm install -g sfdx-cli'
@@ -12,20 +13,41 @@ pipeline {
     }
     stage('SFDX-Auth') {
       steps {
+      	// creating SFDX Alias for auth
         sh 'echo $SFDX_URL'
 		sh 'echo ${SFDX_URL} > env.sfdx'
-		sh 'ALIAS=${SFDX_URL}'
-		sh 'echo ${ALIAS}'
-		sh 'sfdx force:auth:sfdxurl:store -d -a ${ALIAS} -f env.sfdx'
+		sh 'sfdx force:auth:sfdxurl:store -d -a ${SFDX_URL} -f env.sfdx'
 		sh 'rm -rf env.sfdx'
-		sh 'sfdx force:org:display -u $ALIAS'
+		sh 'sfdx force:org:display -u ${SFDX_URL}'
       }
     }
-    stage('Deploy') {
+    stage('SF Deploy') {
       steps {
-        sh 'sfdx force:org:display -u $ALIAS'
-        sh 'echo $ALIAS'
+      	// SF Metadata Deploy
+		sh 'sfdx force:source:deploy --sourcepath salesforce_sfdx --targetusername "${ALIAS}" --verbose'
+		// Data Deployment (Optional)
+		sh 'sfdx force:data:tree:import --targetusername "${ALIAS}" --plan sfdx-data/Account-plan.json || true'
+		// Permission set assignment (Optional)
+		sh 'sfdx force:user:permset:assign --targetusername "${ALIAS}" --permsetname HandsetBuy'
       }
     }
-  }
+    stage('Vlocity 1st Time Setup') {
+      steps {
+      	// Vlocity 1st time Setup commands 
+      	// Env VBT Update 
+		sh 'vlocity -sfdx.username "$ALIAS" --nojob packUpdateSettings --verbose true --simpleLogging true'
+		// Install OOTB Vlocity DataPacks
+		sh 'vlocity -sfdx.username "$ALIAS" --nojob installVlocityInitial --verbose true --simpleLogging true'
+		// Apex 1st time setup (Optional)
+		sh 'vlocity -sfdx.username "$ALIAS" --nojob runApex -apex apex/cmt_InitializeOrg.cls --verbose true --simpleLogging true'
+      }
+    }
+    stage('Vlocity Deploy') {
+      steps {
+      	// VBT Deploy
+      	sh 'vlocity -sfdx.username "$ALIAS" -job Deploy_Delta.yaml packDeploy --verbose true --simpleLogging true'
+        // Apex Post Deplyment Jobs (Optional)
+        sh 'vlocity -sfdx.username "$ALIAS" --nojob runApex -apex apex/RunProductBatchJobs.cls --verbose true --simpleLogging true'
+      }
+    }
 }
