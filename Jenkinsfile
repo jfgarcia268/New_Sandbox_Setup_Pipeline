@@ -1,7 +1,6 @@
 #!/usr/bin/env groovy
 pipeline {
-  agent any
-  tools {nodejs "latest"}
+node {
   stages {
     stage('Install Tools') {
       steps {
@@ -21,4 +20,5 @@ pipeline {
       }
     }
   }
+}
 }
