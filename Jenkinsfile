@@ -7,7 +7,7 @@ pipeline {
       steps {
       	// Step to Install and Setup VBT and SFDX-CLI
 		sh 'node -v'
-		sh 'npm install -g vlocity sfdx-cli'
+		sh 'npm install -g vlocity'
 		sh 'npm install -g sfdx-cli'
       }
     }
